@@ -14,14 +14,18 @@ CMD ["npm", "run", "dev", "--", "-H", "0.0.0.0"]
 FROM base AS builder
 COPY --from=dependencies /app/node_modules ./node_modules
 COPY . .
+RUN npm run db:generate
 RUN npm run build
 
 FROM base AS production
 ENV NODE_ENV=production
-COPY --from=builder /app/public ./public
-COPY --from=builder /app/.next ./.next
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/package.json ./package.json
+ENV HOSTNAME=0.0.0.0
+ENV PORT=3000
+COPY --from=builder --chown=node:node /app/public ./public
+COPY --from=builder --chown=node:node /app/.next/standalone ./
+COPY --from=builder --chown=node:node /app/.next/static ./.next/static
 USER node
 EXPOSE 3000
-CMD ["npm", "run", "start"]
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+  CMD wget --no-verbose --tries=1 --spider http://127.0.0.1:3000/ || exit 1
+CMD ["node", "server.js"]

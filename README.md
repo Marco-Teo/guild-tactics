@@ -53,7 +53,10 @@ npm test
 npm run test:e2e
 npm run build
 npm run format:check
+npm run check
 ```
+
+`npm run check` executes the formatting, lint, strict type-check, unit/component test and production-build gates in sequence. GitHub Actions runs the same gates plus the responsive Playwright suite on every push to `master` and on pull requests.
 
 Install Playwright browsers once with `npx playwright install chromium`.
 
@@ -80,3 +83,5 @@ Never commit `.env` files or production secrets. `.env.example` contains develop
 Included: responsive application layout, accessible UI primitives, placeholder policy notice, environment validation, Prisma migration/seed, Docker Compose, linting, formatting, strict type-checking, unit/component tests and a homepage E2E test.
 
 Authentication, official/editorial game data, composition browsing and the interactive builder intentionally begin in later milestones.
+
+The production Docker stage uses Next.js standalone output, runs as the unprivileged `node` user and includes an HTTP health check. Baseline response headers disable framing and MIME sniffing and restrict unused browser capabilities.

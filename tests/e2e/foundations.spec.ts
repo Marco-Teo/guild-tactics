@@ -1,7 +1,9 @@
 import { expect, test } from "@playwright/test";
 
 test("foundation homepage labels placeholder data", async ({ page }) => {
-  await page.goto("/");
+  const response = await page.goto("/");
+  expect(response?.headers()["x-content-type-options"]).toBe("nosniff");
+  expect(response?.headers()["x-frame-options"]).toBe("DENY");
   await expect(page.getByRole("heading", { level: 1 })).toContainText(
     "Plan smarter",
   );

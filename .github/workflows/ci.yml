@@ -1,0 +1,77 @@
+name: Quality gates
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: quality-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_DB: guild_tactics
+          POSTGRES_USER: guild_tactics
+          POSTGRES_PASSWORD: guild_tactics_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U guild_tactics -d guild_tactics"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql://guild_tactics:guild_tactics_ci@127.0.0.1:5432/guild_tactics?schema=public
+      NEXT_PUBLIC_APP_URL: http://localhost:3000
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Prisma Client
+        run: npm run db:generate
+
+      - name: Apply database migrations
+        run: npm run db:migrate:deploy
+
+      - name: Seed placeholder data
+        run: npm run db:seed
+
+      - name: Check formatting
+        run: npm run format:check
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Type-check
+        run: npm run type-check
+
+      - name: Run unit and component tests
+        run: npm test
+
+      - name: Build production application
+        run: npm run build
+
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Run end-to-end tests
+        run: npm run test:e2e
