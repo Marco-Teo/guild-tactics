@@ -1,3 +1,4 @@
+import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 
 test("foundation homepage labels placeholder data", async ({ page }) => {
@@ -16,4 +17,10 @@ test("foundation homepage labels placeholder data", async ({ page }) => {
   if ((page.viewportSize()?.width ?? 0) < 1024) {
     await expect(mobileNavigation).toBeVisible();
   }
+
+  const accessibilityScan = await new AxeBuilder({ page })
+    .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
+    .analyze();
+
+  expect(accessibilityScan.violations).toEqual([]);
 });

@@ -56,7 +56,7 @@ npm run format:check
 npm run check
 ```
 
-`npm run check` executes the formatting, lint, strict type-check, unit/component test and production-build gates in sequence. GitHub Actions runs the same gates plus the responsive Playwright suite on every push to `master` and on pull requests.
+`npm run check` executes the formatting, lint, strict type-check, unit/component test and production-build gates in sequence. GitHub Actions runs the same gates plus the responsive Playwright suite and automated WCAG 2.1 A/AA checks on every push to `master` and on pull requests.
 
 Install Playwright browsers once with `npx playwright install chromium`.
 
