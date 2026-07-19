@@ -1,0 +1,10 @@
+.next
+coverage
+node_modules
+package-lock.json
+playwright-report
+test-results
+generated
+.codex
+docs
+PROJECT_RULES.md

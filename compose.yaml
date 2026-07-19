@@ -1,0 +1,37 @@
+services:
+  app:
+    build:
+      context: .
+      target: development
+    command: sh -c "npm run db:migrate:deploy && npm run dev -- -H 0.0.0.0"
+    environment:
+      DATABASE_URL: postgresql://guild_tactics:guild_tactics_dev@db:5432/guild_tactics?schema=public
+      NEXT_PUBLIC_APP_URL: http://localhost:3000
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+      - node_modules:/app/node_modules
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: guild_tactics
+      POSTGRES_USER: guild_tactics
+      POSTGRES_PASSWORD: guild_tactics_dev
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U guild_tactics -d guild_tactics"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  node_modules:
+  postgres_data:

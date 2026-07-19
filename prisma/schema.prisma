@@ -1,0 +1,24 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum DataClassification {
+  PLACEHOLDER
+  COMMUNITY
+  OFFICIAL
+}
+
+model DemoNotice {
+  id             String             @id @default(cuid())
+  internalKey    String             @unique
+  title          String
+  description    String
+  classification DataClassification @default(PLACEHOLDER)
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+}
